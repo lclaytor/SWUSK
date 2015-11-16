@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+  </head>
+  <body id="body" style="background:url(https://sites.google.com/site/estudioapptfeedback/_/rsrc/1447559518929/home/indexweb.png) no-repeat center center fixed">
+    <script>
+    //Get question data
+      google.script.run.withSuccessHandler(setData).getData();
+      
+      //Initialize stored parameters
+      function setData(sheetData){
+      //Display first question
+        document.getElementById("p1").innerHTML = sheetData[0];
+      //Store questions into data
+        localStorage.data = JSON.stringify(sheetData);
+        //Store which question we're on
+        localStorage.i = 0;
+        //Initialize data for responses
+        localStorage.responses = "";
+      }
+      
+      //Go through radio buttons and see which was used
+      function getResponse(){
+        var buttons = document.getElementsByTagName('rating');
+        for (var i = 0; i<buttons.length; i++){
+          if(buttons[i].checked){
+           //reset button and return its value
+            buttons[i].checked = false;
+            return i+1; 
+          }
+        }
+        //If none were clicked, default to 0.
+        return 1;
+      }
+      
+      function inputXch(){
+      //Change background
+        document.getElementById('body').style.background = "url(https://sites.google.com/site/estudioapptfeedback/_/rsrc/1447629305612/home/indexsubmit.png) no-repeat center center fixed"
+      //Remove all radio buttons
+        document.getElementById('1').style.display = "none";
+        document.getElementById('2').style.display = "none";
+        document.getElementById('3').style.display = "none";
+        document.getElementById('4').style.display = "none";
+        document.getElementById('5').style.display = "none";
+        //Remove next button 
+        document.getElementById('nxt').style.display = "none";
+        //add Submit button
+        document.getElementById('sbt').style.display="inline";
+        //add text box
+        document.getElementById('txt').style.display="inline";       
+      }
+      
+      //Update the question to get new value
+      function updateQ(){
+      //Get interator and add one
+        var iter = parseInt(localStorage.i)+1;
+        //put new value back into storage
+        localStorage.i = iter;
+        //get data back from storage
+        var data = JSON.parse(localStorage.data);
+        //update question
+        document.getElementById("p1").innerHTML = data[iter];
+        //Get what the response is
+        var res = getResponse();
+        var responses = [];
+        //If there is something in responses, get it
+        if(localStorage.responses != ""){
+          responses = JSON.parse(localStorage.responses);
+        }
+        //Add new response to array
+        responses.push(res);         
+        //Store array again
+        localStorage.responses = JSON.stringify(responses);        
+        //If we're on the last question
+        if(iter>=data.length-1){
+          //disable radio buttons and put up comment section
+          inputXch();
+        }
+        
+      }
+      
+      function endSurvey(){
+        //change background
+        document.getElementById('body').style.background = "url(https://sites.google.com/site/estudioapptfeedback/_/rsrc/1447629297711/home/Survey%20Complete%20Mockup.png) no-repeat center center fixed"
+        //hide Submit button
+        document.getElementById('sbt').style.display="none";
+        //hide text box
+        document.getElementById('txt').style.display="none";
+        //hide title
+        document.getElementById('p1').style.display="none";
+        //Get contents of textbox
+        var text = document.getElementById('txt').value;
+        var responses = [];
+        responses = JSON.parse(localStorage.responses);
+        responses.push(text);
+        //Call data handler
+        google.script.run.handleData(responses);
+      }
+    </script>
+    <p style="text-align: center;">&nbsp;</p>
+    <p style="text-align: center;">&nbsp;</p>
+    <p id="p1" style="text-align: center; font-size:30px; color:#fff"></p>
+    <form>
+      <input id="1" type=radio value=1 name='rating' style="position:absolute; left: 180px; top:235px"> 
+      <input id="2" type=radio value=2 name='rating' style="position:absolute; left: 330px; top:235px">
+      <input id="3" type=radio value=3 name='rating' style="position:absolute; left: 480px; top:235px">
+      <input id="4" type=radio value=4 name='rating' style="position:absolute; left: 630px; top:235px">
+      <input id="5" type=radio value=5 name='rating' style="position:absolute; left: 780px; top:235px">
+      
+    
+      <input id="nxt" type=button name=Next onclick="updateQ()" style="position:absolute; left:885px; top:300px; width:120px; height:60px; background:transparent;">
+      <input id="sbt" type=button name=Submit onclick="endSurvey()" style="position:absolute; left:885px; top:300px; width:120px; height:60px;display:none;background:transparent;">
+      <textarea id="txt" name="Textbox" value="" cols="80" rows="8" style="position:absolute; left:180px; top:180px;display:none"></textarea>
+    </form>
+  </body>
+</html>
