@@ -50,10 +50,6 @@ function handleData(responses){
   addData(responses);
 }
 
-function getCurrentSheet() {
-  
-}
-
 //Sends a link to the current sheet to the specified e-mail
 function sendSheet() {
   // create spreadsheet
