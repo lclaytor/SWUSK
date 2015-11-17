@@ -6,7 +6,7 @@
   <body id="body" style="background:url(https://sites.google.com/site/estudioapptfeedback/_/rsrc/1447559518929/home/indexweb.png) no-repeat center center fixed">
     <script>
     //Get question data
-      google.script.run.withSuccessHandler(setData).getData();
+      google.script.run.withSuccessHandler(setData).getData('1ddnyYPo3Qy1ZFFWCsOKh6BGUH2ZT411ItGEAx7AJ0Wo');
       
       //Initialize stored parameters
       function setData(sheetData){
@@ -22,7 +22,7 @@
       
       //Go through radio buttons and see which was used
       function getResponse(){
-        var buttons = document.getElementsByTagName('rating');
+        var buttons = document.buttons.rating;
         for (var i = 0; i<buttons.length; i++){
           if(buttons[i].checked){
            //reset button and return its value
@@ -31,9 +31,9 @@
           }
         }
         //If none were clicked, default to 0.
-        return 1;
+        return 0;
       }
-      // Change the input style from radio buttons to text
+      
       function inputXch(){
       //Change background
         document.getElementById('body').style.background = "url(https://sites.google.com/site/estudioapptfeedback/_/rsrc/1447629305612/home/indexsubmit.png) no-repeat center center fixed"
@@ -101,7 +101,7 @@
     <p style="text-align: center;">&nbsp;</p>
     <p style="text-align: center;">&nbsp;</p>
     <p id="p1" style="text-align: center; font-size:30px; color:#fff"></p>
-    <form>
+    <form name="buttons" method=post>
       <input id="1" type=radio value=1 name='rating' style="position:absolute; left: 180px; top:235px"> 
       <input id="2" type=radio value=2 name='rating' style="position:absolute; left: 330px; top:235px">
       <input id="3" type=radio value=3 name='rating' style="position:absolute; left: 480px; top:235px">
@@ -115,3 +115,5 @@
     </form>
   </body>
 </html>
+
+
