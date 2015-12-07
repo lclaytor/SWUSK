@@ -50,6 +50,9 @@ function handleData(responses){
   
   //Append data to active sheet
   addData(responses);
+  
+  //Calculate and Append statistics
+  calculateStats(responses);
 }
 
 //function getCurrentSheet() {
@@ -115,14 +118,86 @@ function getDate(){
   return Utilities.formatDate(dateofDay, "GMT-5", "MM-dd-yyyy");
 }
 
-//function calculateStats(startDate,endDate){
-  //var sheetData = SpreadsheetApp.openById(dataSheetID).getSheets();
- // var dates = sheetData[0].getSheetValues(2, 1,? , 1);
-  
-//}
+//Not used outside of testing
+function testStats()
+{
+  //fake data
+  var data = [getDate(),1,2,4,""];
+  calculateStats(data);
+}
 
-//function addStats(stats)
-//{
-  //var sheet = SpreadsheetApp.openById(dataSheetID).getSheets();
-  //sheet[1].appendRow(stats);
-//}
+//Calculate statistics and update the data sheet --- Needs refactoring
+function calculateStats(newData){
+  //get the whole sheet
+  var sheetData = SpreadsheetApp.openById(dataSheetID).getSheets();
+  //Used for checking if the month has changed
+  var d = new Date();
+  //number of Qs can be passed later
+  var numQs=3;
+ //get the data from the column with all data stats
+  var stats = sheetData[1].getRange(2, 3, 1, 18);
+  //the formula for the average response to a question
+  var averageQForm = "=ROUND((R[0]C[1]*1+R[0]C[2]*2+R[0]C[3]*3+R[0]C[4]*4+R[0]C[5]*5)/Sum(R[0]C[1]:R[0]C[5]),2)";
+  
+  var cell;
+  
+  //for the number of questions - can generalize
+  for(i=1;i<=numQs;i++)
+  {
+    //force the proper formula on the first row
+    cell = stats.getCell(1, (6*(i-1)+1));
+    cell.setFormulaR1C1(averageQForm);
+    //update the raw stats for first row
+    cell = stats.getCell(1,((newData[i]+1)+6*(i-1)));
+    cell.setValue(cell.getValue()+1);
+  }
+  
+  
+  //get the last row to check the month
+  stats = sheetData[1].getRange(sheetData[1].getLastRow(),1,1,20);
+  //get the month cell
+  cell = stats.getCell(1,1);
+  //get the current month and year
+  var m = d.getMonth();
+  var y = d.getYear();
+  //m=0; //for testing
+  //if the month has changed from the last entry
+  if ((m+1>cell.getValue())||(cell.getValue()==12&&m==0)||(sheetData[1].getLastRow()==2))
+  {
+    //add a new line for this month
+    
+    //start a new line to append
+    var newRow = [m+1,y];
+    //for the number of questions
+    for(j=1;j<=numQs;j++)
+    {
+      newRow.push("");
+      newRow.push(0);
+      newRow.push(0);
+      newRow.push(0);
+      newRow.push(0);
+      newRow.push(0);
+    }
+    //add the row
+    sheetData[1].appendRow(newRow);
+    //get the row in order to copy the formula
+    stats = sheetData[1].getRange(sheetData[1].getLastRow(),1,1,20);
+   // for the number of questions
+    for(l=1;l<=numQs;l++)
+    {
+      //copy the formula
+      cell = stats.getCell(1, 3+6*(l-1));
+      cell.setFormulaR1C1(averageQForm);
+    }
+  }
+  //get the data region of the current period
+  stats = sheetData[1].getRange(sheetData[1].getLastRow(),3,1,18);
+  //for the number of questions
+  for(k=1;k<=numQs;k++)
+  {
+    //add the values to the current period
+    cell = stats.getCell(1,((newData[k]+1)+6*(k-1)));
+    cell.setValue(cell.getValue()+1);
+  }
+  
+}
